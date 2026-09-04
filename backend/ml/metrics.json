@@ -1,0 +1,116 @@
+{
+  "dataset_size": 1000,
+  "train_size": 800,
+  "test_size": 200,
+  "features_used": [
+    "Crop_Type",
+    "Location",
+    "Season",
+    "Soil_Type",
+    "Irrigation_Type",
+    "Land_Area_Acres",
+    "Expected_Yield_per_Acre",
+    "Total_Expected_Yield",
+    "Seed_Cost",
+    "Fertilizer_Cost",
+    "Labor_Cost",
+    "Transportation_Cost",
+    "Other_Expenses",
+    "Market_Price"
+  ],
+  "best_regression_model": "Gradient Boosting Regressor",
+  "best_classification_model": "Gradient Boosting Classifier",
+  "regression_metrics": {
+    "Linear Regression": {
+      "mae": 116746.12605052622,
+      "rmse": 168524.09474939707,
+      "r2": 0.865617033259179
+    },
+    "Random Forest Regressor": {
+      "mae": 66316.23246,
+      "rmse": 105764.7892594722,
+      "r2": 0.9470699339961753
+    },
+    "Gradient Boosting Regressor": {
+      "mae": 60078.09027159864,
+      "rmse": 94042.3740375694,
+      "r2": 0.9581527053479996
+    }
+  },
+  "classification_metrics": {
+    "Random Forest Classifier": {
+      "accuracy": 0.935,
+      "precision": 0.9338538547904192,
+      "recall": 0.935,
+      "f1_score": 0.931462709250102
+    },
+    "Gradient Boosting Classifier": {
+      "accuracy": 0.95,
+      "precision": 0.9493333333333333,
+      "recall": 0.95,
+      "f1_score": 0.9489711279007015
+    }
+  },
+  "feature_importances": [
+    {
+      "feature": "Seed_Cost",
+      "importance": 0.4585286862793625
+    },
+    {
+      "feature": "Total_Expected_Yield",
+      "importance": 0.24962743579810395
+    },
+    {
+      "feature": "Market_Price",
+      "importance": 0.15863259258349235
+    },
+    {
+      "feature": "Transportation_Cost",
+      "importance": 0.08338994531336427
+    },
+    {
+      "feature": "Expected_Yield_per_Acre",
+      "importance": 0.033149412157980215
+    },
+    {
+      "feature": "Crop_Type_Sugarcane",
+      "importance": 0.00893754584123265
+    },
+    {
+      "feature": "Land_Area_Acres",
+      "importance": 0.004788009871180492
+    },
+    {
+      "feature": "Other_Expenses",
+      "importance": 0.0009341257303581074
+    },
+    {
+      "feature": "Crop_Type_Rice",
+      "importance": 0.0004541466772095214
+    },
+    {
+      "feature": "Labor_Cost",
+      "importance": 0.00035748638791294874
+    },
+    {
+      "feature": "Crop_Type_Potato",
+      "importance": 0.00035241140610548226
+    },
+    {
+      "feature": "Fertilizer_Cost",
+      "importance": 0.00024448949831293814
+    },
+    {
+      "feature": "Crop_Type_Onion",
+      "importance": 0.00021304436094041668
+    },
+    {
+      "feature": "Soil_Type_Sandy",
+      "importance": 8.264398597302068e-05
+    },
+    {
+      "feature": "Soil_Type_Alluvial",
+      "importance": 6.008812904120715e-05
+    }
+  ]
+}
