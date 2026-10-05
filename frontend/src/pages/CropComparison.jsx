@@ -11,6 +11,7 @@ export default function CropComparison() {
   const [selectedCrops, setSelectedCrops] = useState(['Rice', 'Wheat', 'Cotton', 'Sugarcane']);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     getOptions()
@@ -28,25 +29,13 @@ export default function CropComparison() {
   useEffect(() => {
     if (selectedCrops.length > 0) {
       setLoading(true);
+      setError(null);
       getCropComparison(selectedCrops)
         .then(res => setData(res))
         .catch(err => {
-          console.warn("Using local comparison math:", err);
-          // Fallback matrix calculation if backend isn't connected
-          const fallbackData = selectedCrops.map(crop => {
-            const b = DEFAULT_OPTIONS.crops.includes(crop);
-            return {
-              crop,
-              avg_yield: 35.0,
-              avg_cost: 120000,
-              avg_revenue: 350000,
-              avg_profit: 230000,
-              avg_margin: 65.7,
-              avg_roi: 191.6,
-              risk_level: 'Medium'
-            };
-          });
-          setData({ crops: fallbackData, highlights: { highest_profit: selectedCrops[0], highest_roi: selectedCrops[0], lowest_cost: selectedCrops[0], lowest_risk: selectedCrops[0] } });
+          console.error('Crop comparison fetch error:', err);
+          setError(err.message || 'Unable to load crop comparison data.');
+          setData(null);
         })
         .finally(() => setLoading(false));
     }
@@ -110,6 +99,17 @@ export default function CropComparison() {
       </div>
 
       {/* Highlights Banner */}
+      {error && (
+        <div className="glass-panel p-5 rounded-3xl border border-rose-500/30 text-rose-300 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
+
+      {loading && (
+        <div className="glass-panel p-5 rounded-3xl border border-slate-800 text-slate-400 text-sm">Loading crop comparison data...</div>
+      )}
+
       {highlights && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           

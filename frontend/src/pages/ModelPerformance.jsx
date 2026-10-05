@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Cpu, Database, Target, Award, CheckCircle2, BarChart3, 
-  Sparkles, Layers, ShieldCheck, Activity 
+  Sparkles, Layers, ShieldCheck, Activity, AlertCircle
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { getModelMetrics } from '../services/api';
 
 export default function ModelPerformance() {
   const [metrics, setMetrics] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     getModelMetrics()
       .then(data => setMetrics(data))
-      .catch(err => console.error("Error fetching model metrics:", err));
+      .catch(err => {
+        console.error('Error fetching model metrics:', err);
+        setError(err.message || 'Unable to load model metrics from the API.');
+      });
   }, []);
 
   if (!metrics) {
     return (
       <div className="py-20 text-center text-slate-400 space-y-3">
-        <Cpu className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />
-        <p className="text-sm">Loading ML Model Metrics & Evaluation Data...</p>
+        {error ? <AlertCircle className="w-10 h-10 text-rose-400 mx-auto" /> : <Cpu className="w-10 h-10 text-emerald-400 animate-spin mx-auto" />}
+        <p className="text-sm">{error || 'Loading ML Model Metrics & Evaluation Data...'}</p>
       </div>
     );
   }

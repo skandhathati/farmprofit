@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { DEFAULT_OPTIONS } from './constants';
-import { computeClientDashboard } from './datasetService';
 
-const API_BASE = '/api';
+const configuredApiUrl = String(import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+const API_BASE = configuredApiUrl
+  ? (configuredApiUrl.endsWith('/api') ? configuredApiUrl : `${configuredApiUrl}/api`)
+  : '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -25,26 +27,17 @@ export const getHealth = async () => {
 };
 
 export const getOptions = async () => {
-  try {
-    const res = await api.get('/options');
-    if (res.data && Object.keys(res.data).length > 0) {
-      return {
-        crops: res.data.crops?.length ? res.data.crops : DEFAULT_OPTIONS.crops,
-        locations: res.data.locations?.length ? res.data.locations : DEFAULT_OPTIONS.locations,
-        seasons: res.data.seasons?.length ? res.data.seasons : DEFAULT_OPTIONS.seasons,
-        soil_types: res.data.soil_types?.length ? res.data.soil_types : DEFAULT_OPTIONS.soil_types,
-        irrigation_types: res.data.irrigation_types?.length ? res.data.irrigation_types : DEFAULT_OPTIONS.irrigation_types,
-        risk_levels: res.data.risk_levels?.length ? res.data.risk_levels : DEFAULT_OPTIONS.risk_levels,
-        profit_statuses: res.data.profit_statuses?.length ? res.data.profit_statuses : DEFAULT_OPTIONS.profit_statuses,
-        yield_units: DEFAULT_OPTIONS.yield_units,
-        price_units: DEFAULT_OPTIONS.price_units
-      };
-    }
-    return DEFAULT_OPTIONS;
-  } catch (err) {
-    console.warn("Using default options fallback:", err);
-    return DEFAULT_OPTIONS;
+  const res = await api.get('/options');
+  const data = res.data;
+  const optionKeys = ['crops', 'locations', 'seasons', 'soil_types', 'irrigation_types', 'risk_levels', 'profit_statuses'];
+  if (!data || optionKeys.some(key => !Array.isArray(data[key]))) {
+    throw new Error('The options response from the API is invalid.');
   }
+  return {
+    ...data,
+    yield_units: DEFAULT_OPTIONS.yield_units,
+    price_units: DEFAULT_OPTIONS.price_units
+  };
 };
 
 export const getDashboard = async (filters = {}) => {
@@ -59,13 +52,12 @@ export const getDashboard = async (filters = {}) => {
       }
     }
   });
-  try {
-    const res = await api.get('/dashboard', { params: cleanFilters });
-    return res.data;
-  } catch (err) {
-    console.warn("Backend /dashboard unreachable, using client-side dataset calculation:", err);
-    return computeClientDashboard(cleanFilters);
+  const res = await api.get('/dashboard', { params: cleanFilters });
+  const data = res.data;
+  if (!data || typeof data.summary !== 'object' || typeof data.charts !== 'object') {
+    throw new Error('The dashboard response from the API is invalid.');
   }
+  return data;
 };
 
 export const calculateProfit = async (farmData) => {
@@ -91,19 +83,20 @@ export const getCropComparison = async (crops = []) => {
   const res = await api.get('/crop-comparison', {
     params: cropsParam ? { crops: cropsParam } : {},
   });
-  return res.data;
+  const data = res.data;
+  if (!data || !Array.isArray(data.crops) || typeof data.highlights !== 'object') {
+    throw new Error('The crop comparison response from the API is invalid.');
+  }
+  return data;
 };
 
-import metricsDataFallback from './metricsData.json';
-
 export const getModelMetrics = async () => {
-  try {
-    const res = await api.get('/model-metrics');
-    return res.data;
-  } catch (err) {
-    console.warn("Backend /model-metrics unreachable, using embedded metrics data:", err);
-    return metricsDataFallback;
+  const res = await api.get('/model-metrics');
+  const data = res.data;
+  if (!data || typeof data.regression_metrics !== 'object' || typeof data.classification_metrics !== 'object') {
+    throw new Error('The model metrics response from the API is invalid.');
   }
+  return data;
 };
 
 export default api;

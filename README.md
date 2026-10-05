@@ -124,3 +124,30 @@ npm run dev
 ```
 
 Open `http://127.0.0.1:3000` in your web browser.
+
+### 4. Deployment Configuration
+
+The frontend uses `VITE_API_URL` for a separately deployed FastAPI service. Set it to the backend origin without a trailing slash; the frontend appends `/api` automatically.
+
+For Netlify, set this environment variable in the site settings before building:
+
+```text
+VITE_API_URL=https://your-fastapi-service.example.com
+```
+
+The existing `netlify.toml` builds from `frontend` and publishes `frontend/dist`. It does not proxy API requests, so `VITE_API_URL` is required in production. For local development, omit it to use the Vite proxy to `http://127.0.0.1:8080`, or set `VITE_DEV_API_URL` to another local backend origin.
+
+For Render, deploy `backend` as a Python web service with:
+
+```text
+Build Command: pip install -r requirements.txt
+Start Command: uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+Set the backend environment variable to the exact deployed frontend origin(s), separated by commas:
+
+```text
+FRONTEND_ORIGINS=https://your-netlify-site.netlify.app
+```
+
+The backend dataset and ML artifacts are loaded from the repository paths under `frontend/dataset` and `backend/ml`. Keep those directories in the deployed backend source or update the dataset packaging accordingly.
